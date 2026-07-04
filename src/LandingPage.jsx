@@ -17,6 +17,7 @@ const LandingPage = ({ onLoginSuccess }) => {
     username: '',
     password: '',
   });
+  
   const [message, setMessage] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
 
@@ -52,19 +53,14 @@ const LandingPage = ({ onLoginSuccess }) => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    // Temporary until backend is connected
     
-
     const result = await sendJson(`${API_BASE}/login`, loginData);
 
 console.log("Login response:", result);
 
 setLoading(false);
 
-if (result.success) {
-  
-    localStorage.setItem("authToken", result.token);
-  
+if (result.success) {  
 
   setMessage({
     type: "success",
@@ -97,7 +93,6 @@ if (result.success) {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    // Temporary until backend is connected
     
 
     const result = await sendJson(
@@ -142,7 +137,13 @@ else{
   };
 
   return (
+      
     <div className="auth-container">
+      
+      <div className="hero-header">
+    <h1>MathGenius</h1>
+    <p>AI-Powered Mathematics Practice Portal</p>
+  </div>
       <div className="form-card">
         <div className="tab-switcher">
           <button
@@ -151,6 +152,7 @@ else{
           >
             Login
           </button>
+          
           <button
             className={`tab ${activeTab === 'register' ? 'active' : ''}`}
             onClick={() => switchTab('register')}
@@ -224,20 +226,16 @@ else{
               <label>Password</label>
               <div className="password-container">
                 <input
-                  type={showRegisterPassword ? "text" : "password"}
-                  placeholder="Create a password"
-                  value={registerData.password}
+                  type={showLoginPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={loginData.password}
                   onChange={(e) =>
-                    setRegisterData({ ...registerData, password: e.target.value })
+                    setLoginData({ ...loginData, password: e.target.value })
                   }
                 />
-                <span
-                  className="eye-icon"
-                  onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                >
-                  {showRegisterPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
+                
               </div>
+             
             </div>
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? 'Creating account...' : 'Create Account'}
