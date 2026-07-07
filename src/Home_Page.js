@@ -1,118 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // 👈 added
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { Bar, Line } from 'react-chartjs-2';
 import './Home_Page.css';
+import Dashboard from './Dashboard';
+import Profile from './Profile';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-// Icon mapping for each topic
-const topicIcons = {
-  Calculus: 'fa-integral',
-  'Linear Algebra': 'fa-border-all',
-  Trigonometry: 'fa-draw-polygon',
-  'Coordinate Geometry': 'fa-chart-line',
-  Probability: 'fa-dice',
-  'Complex Numbers': 'fa-calculator',
-  Vectors: 'fa-arrow-right',
-  '3D Geometry': 'fa-cube',
-};
-
-const topicsInitial = [
-  { name: 'Calculus', status: 'in_progress' },
-  { name: 'Linear Algebra', status: 'not_started' },
-  { name: 'Trigonometry', status: 'completed' },
-  { name: 'Coordinate Geometry', status: 'in_progress' },
-  { name: 'Probability', status: 'not_started' },
-  { name: 'Complex Numbers', status: 'completed' },
-  { name: 'Vectors', status: 'in_progress' },
-  { name: '3D Geometry', status: 'not_started' },
-];
-
-const leaderboardData = [
-  { rank: 1, name: 'Ananya S.', questionsSolved: 2890, accuracy: 92.3, score: 98.5 },
-  { rank: 2, name: 'Rohan K.', questionsSolved: 2345, accuracy: 88.7, score: 94.2 },
-  { rank: 3, name: 'Priya M.', questionsSolved: 2100, accuracy: 85.4, score: 90.1 },
-  { rank: 4, name: 'Arjun D.', questionsSolved: 1890, accuracy: 82.1, score: 87.6 },
-  { rank: 5, name: 'Sneha L.', questionsSolved: 1650, accuracy: 79.8, score: 84.3 },
-  { rank: 6, name: 'You', questionsSolved: 1284, accuracy: 78.4, score: 81.2 },
-];
-
-const overallChartData = {
-  labels: ['Completed Ch.', 'Questions Solved', 'Accuracy %', 'Activity %'],
-  datasets: [{
-    label: 'Current',
-    data: [24, 1284, 78.4, 85],
-    backgroundColor: ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b'],
-    borderRadius: 8,
-  }],
-};
-
-const weeklyChartData = {
-  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  datasets: [
-    {
-      label: 'Hours Practiced',
-      data: [1.5, 2.2, 1.8, 2.5, 3.0, 2.0, 2.7],
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,0.1)',
-      tension: 0.3,
-      fill: true,
-    },
-    {
-      label: 'Streak (days)',
-      data: [7, 14, 21, 23, 23, 23, 23],
-      borderColor: '#f59e0b',
-      borderDash: [5, 5],
-      tension: 0.3,
-      yAxisID: 'y1',
-    },
-  ],
-};
-
-const weeklyChartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: true } },
-  scales: {
-    y: { beginAtZero: true, title: { display: true, text: 'Hours' } },
-    y1: {
-      beginAtZero: true,
-      position: 'right',
-      grid: { drawOnChartArea: false },
-      title: { display: true, text: 'Days' },
-    },
-  },
-};
-
-const HomePage = () => {
+const HomePage = ({ onLogout }) => {
   const [minimized, setMinimized] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [topics, setTopics] = useState(topicsInitial);
-  const [showAllTopics, setShowAllTopics] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const location = useLocation(); // 👈 current route
+  const [navItemSelected, setNavItemSelected] = useState('dashboard','profile', 'ai-analyzer', 'test-quiz', 'personalize');
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const avatarRef = useRef(null);
 
   useEffect(() => {
     document.body.className = darkMode ? 'dark-theme' : '';
   }, [darkMode]);
 
-  const handleTopicClick = (index) => {
-    const newTopics = [...topics];
-    const current = newTopics[index].status;
-    if (current === 'not_started') newTopics[index].status = 'in_progress';
-    else if (current === 'in_progress') newTopics[index].status = 'completed';
-    else newTopics[index].status = 'not_started';
-    setTopics(newTopics);
-  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (avatarRef.current && !avatarRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
 
-  const getTopicButtonLabel = (status) => {
-    if (status === 'not_started') return 'Begin';
-    if (status === 'in_progress') return 'Continue';
-    return 'Review';
-  };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const visibleTopics = showAllTopics ? topics : topics.slice(0, 4);
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setMenuOpen(false);
+    if (onLogout) {
+      onLogout();
+    } else {
+      navigate('/');
+    }
+  };
 
   return (
     <div className={`dashboard-root ${darkMode ? 'dark' : ''}`}>
@@ -126,20 +55,22 @@ const HomePage = () => {
         </div>
         <nav className="sidebar-nav">
           {/* Use Link and active class based on location */}
-          <Link
-            to="/"
-            className={`nav-item ${location.pathname === '/' ? 'active' : ''}`}
+          <div
+            className={`nav-item ${navItemSelected === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setNavItemSelected('dashboard')}
           >
             <i className="fas fa-th-large nav-icon"></i>
-            <span className={`nav-text ${minimized ? 'hidden' : ''}`}>Dashboard</span>
-          </Link>
-          <Link
-            to="/profile"
-            className={`nav-item ${location.pathname === '/profile' ? 'active' : ''}`}
+            <span className={`nav-text ${minimized ? "hidden" : ""}`}>
+              Dashboard
+            </span>
+          </div>
+          <div
+            className={`nav-item ${navItemSelected === 'profile' ? 'active' : ''}`} 
+            onClick={() => setNavItemSelected('profile')}
           >
             <i className="fas fa-user nav-icon"></i>
             <span className={`nav-text ${minimized ? 'hidden' : ''}`}>Profile</span>
-          </Link>
+          </div>
           {/* Placeholder links (no routing yet) */}
           <a className="nav-item">
             <i className="fas fa-robot nav-icon"></i>
@@ -173,85 +104,33 @@ const HomePage = () => {
               <i className="fas fa-bell"></i>
               <span className="dot"></span>
             </button>
-            {/* Avatar – now clickable, goes to profile */}
-            <Link to="/profile" className="avatar-link">
-              <div className="avatar">RK</div>
-            </Link>
+            <div className="avatar-wrapper" ref={avatarRef}>
+              <button
+                type="button"
+                className="avatar-btn"
+                onClick={() => setMenuOpen((prev) => !prev)}
+                aria-expanded={menuOpen}
+              >
+                <div className="avatar">RK</div>
+              </button>
+              {menuOpen && (
+                <div className="avatar-menu">
+                  <Link to="/profile" className="avatar-menu-item" onClick={() => setMenuOpen(false)}>
+                    Profile
+                  </Link>
+                  <button type="button" className="avatar-menu-item danger" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
             <span className={`username ${minimized ? 'hidden' : ''}`}>Rohan K.</span>
           </div>
         </header>
 
-        <div className="content-grid">
-          {/* ---- TOPICS SECTION WITH CARDS ---- */}
-          <div className="card topics-card">
-            <h3 className="card-title">JEE Math Topics</h3>
-            <div className="topics-grid">
-              {visibleTopics.map((topic, idx) => (
-                <div key={idx} className="topic-card-item">
-                  <div className="topic-card-icon">
-                    <i className={`fas ${topicIcons[topic.name] || 'fa-book'}`}></i>
-                  </div>
-                  <span className="topic-card-name">{topic.name}</span>
-                  <button
-                    className={`topic-btn ${topic.status}`}
-                    onClick={() => handleTopicClick(topics.indexOf(topic))}
-                  >
-                    {getTopicButtonLabel(topic.status)}
-                  </button>
-                </div>
-              ))}
-            </div>
-            {topics.length > 4 && (
-              <button
-                className="view-all-btn"
-                onClick={() => setShowAllTopics(!showAllTopics)}
-              >
-                {showAllTopics ? 'Show Less' : 'View All Topics'}
-              </button>
-            )}
-          </div>
+        {navItemSelected === "dashboard" && <Dashboard />}
+        {navItemSelected === "profile" && <Profile />}
 
-          {/* Overall Performance */}
-          <div className="card">
-            <h3 className="card-title">Overall Performance</h3>
-            <Bar data={overallChartData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
-          </div>
-
-          {/* Weekly Practice */}
-          <div className="card">
-            <h3 className="card-title">Weekly Practice & Streak</h3>
-            <div className="chart-container">
-              <Line data={weeklyChartData} options={weeklyChartOptions} />
-            </div>
-          </div>
-        </div>
-
-        {/* Leaderboard */}
-        <div className="leaderboard-section">
-          <h2 className="leaderboard-title">🏆 Leaderboard</h2>
-          <table className="leaderboard-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Name</th>
-                <th>Questions Solved</th>
-                <th>Accuracy</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboardData.map((entry) => (
-                <tr key={entry.rank} className={entry.name === 'You' ? 'you-row' : ''}>
-                  <td>{entry.rank}</td>
-                  <td>{entry.name}</td>
-                  <td>{entry.questionsSolved}</td>
-                  <td>{entry.accuracy}%</td>
-                  <td>{entry.score}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   );
