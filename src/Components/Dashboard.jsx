@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // 👈 added
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 import './Dashboard.css';
+import { slugifyTopic } from './Chapter';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 
 const topicIcons = {
-  Calculus: 'fa-integral',
+  Calculus: 'fa-chart-area',
   'Linear Algebra': 'fa-border-all',
   Trigonometry: 'fa-draw-polygon',
   'Coordinate Geometry': 'fa-chart-line',
@@ -89,6 +90,7 @@ export default function Dashboard() {
 
   const [topics, setTopics] = useState(topicsInitial);
   const [showAllTopics, setShowAllTopics] = useState(false);
+  const navigate = useNavigate();
 
   const handleTopicClick = (index) => {
     const newTopics = [...topics];
@@ -107,22 +109,39 @@ export default function Dashboard() {
 
   const visibleTopics = showAllTopics ? topics : topics.slice(0, 4);
 
+  const handleTopicOpen = (topicName) => {
+    navigate(`/chapter/${slugifyTopic(topicName)}`);
+  };
+
   return (
     <>
-    <div className="content-grid">
-      {/* ---- TOPICS SECTION WITH CARDS ---- */}
       <div className="card topics-card">
         <h3 className="card-title">JEE Math Topics</h3>
         <div className="topics-grid">
           {visibleTopics.map((topic, idx) => (
-            <div key={idx} className="topic-card-item">
+            <div
+              key={idx}
+              className="topic-card-item"
+              onClick={() => handleTopicOpen(topic.name)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  handleTopicOpen(topic.name);
+                }
+              }}
+            >
               <div className="topic-card-icon">
                 <i className={`fas ${topicIcons[topic.name] || 'fa-book'}`}></i>
               </div>
               <span className="topic-card-name">{topic.name}</span>
               <button
                 className={`topic-btn ${topic.status}`}
-                onClick={() => handleTopicClick(topics.indexOf(topic))}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleTopicClick(topics.indexOf(topic));
+                }}
               >
                 {getTopicButtonLabel(topic.status)}
               </button>
@@ -138,48 +157,51 @@ export default function Dashboard() {
           </button>
         )}
       </div>
+      <div className="content-grid">
+        {/* ---- TOPICS SECTION WITH CARDS ---- */}
 
-      {/* Overall Performance */}
-      <div className="card">
-        <h3 className="card-title">Overall Performance</h3>
-        <Bar data={overallChartData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
-      </div>
 
-      {/* Weekly Practice */}
-      <div className="card">
-        <h3 className="card-title">Weekly Practice & Streak</h3>
-        <div className="chart-container">
-          <Line data={weeklyChartData} options={weeklyChartOptions} />
+        {/* Overall Performance */}
+        <div className="card">
+          <h3 className="card-title">Overall Performance</h3>
+          <Bar data={overallChartData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+        </div>
+
+        {/* Weekly Practice */}
+        <div className="card">
+          <h3 className="card-title">Weekly Practice & Streak</h3>
+          <div className="chart-container">
+            <Line data={weeklyChartData} options={weeklyChartOptions} />
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* Leaderboard */}
-    <div className="leaderboard-section">
-      <h2 className="leaderboard-title">🏆 Leaderboard</h2>
-      <table className="leaderboard-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Name</th>
-            <th>Questions Solved</th>
-            <th>Accuracy</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody>
-          {leaderboardData.map((entry) => (
-            <tr key={entry.rank} className={entry.name === 'You' ? 'you-row' : ''}>
-              <td>{entry.rank}</td>
-              <td>{entry.name}</td>
-              <td>{entry.questionsSolved}</td>
-              <td>{entry.accuracy}%</td>
-              <td>{entry.score}</td>
+      {/* Leaderboard */}
+      <div className="leaderboard-section">
+        <h2 className="leaderboard-title">🏆 Leaderboard</h2>
+        <table className="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Questions Solved</th>
+              <th>Accuracy</th>
+              <th>Score</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {leaderboardData.map((entry) => (
+              <tr key={entry.rank} className={entry.name === 'You' ? 'you-row' : ''}>
+                <td>{entry.rank}</td>
+                <td>{entry.name}</td>
+                <td>{entry.questionsSolved}</td>
+                <td>{entry.accuracy}%</td>
+                <td>{entry.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
