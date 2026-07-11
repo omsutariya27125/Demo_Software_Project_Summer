@@ -34,5 +34,22 @@ def get_questions(chapter: str, authorization: str = Header(...)):
         "question": question
     }
     
+@router.get("/q/{chapter}")
+def get_q(chapter: str):
+    questions = list(question_collection.find({
+        "chapter": chapter
+    }))
 
+    if not questions:
+        raise HTTPException(
+            status_code=404,
+            detail="No questions found for this chapter."
+        )
 
+    question = random.choice(questions)
+    question["_id"] = str(question["_id"])
+
+    return{
+        "success": True,
+        "question": question
+    }

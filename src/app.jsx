@@ -5,7 +5,7 @@ import WelcomePage from "./Pages/WelcomePage";
 import LandingPage from "./Pages/LandingPage";
 import Dashboard from "./Components/Dashboard";
 import Profile from "./Components/Profile";
-import Question from "./Components/Question";
+import Question from "./Pages/Question";
 import Chapter from "./Components/Chapter";
 
 function App() {
@@ -20,7 +20,7 @@ return (
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>
-        <Route path="/question" element={<Question />} />
+        <Route path="/question/:ChapterName" element={<Question />} />
         <Route path="/chapter" element={<Chapter />} />
         <Route path="/chapter/:topicSlug" element={<Chapter />} />
         <Route path="*" element={<div>Fuck SAURABH Hard</div>} />
