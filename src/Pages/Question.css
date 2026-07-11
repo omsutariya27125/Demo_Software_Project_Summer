@@ -3,14 +3,44 @@
 /* ===== Body background for dark mode ===== */
 body {
   transition: background-color 0.3s ease, color 0.3s ease;
-  background-color: #f8fafc; /* light mode default */
+  background:
+    linear-gradient(rgb(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.3) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.7) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.7) 1px, transparent 1px),
+    #f4f7fc;
+  background-size:
+    10px 10px,
+    10px 10px,
+    50px 50px,
+    50px 50px,
+    100px 100px,
+    100px 100px,
+    auto;
   color: #1e293b;
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
 body.dark-mode {
-  background-color: #0f172a;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(42, 119, 169, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 119, 169, 0.3) 1px, transparent 1px),
+    linear-gradient(rgba(42, 119, 169, 0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 119, 169, 0.5) 1px, transparent 1px),
+    #0f172a;
+  background-size:
+    10px 10px,
+    10px 10px,
+    50px 50px,
+    50px 50px,
+    100px 100px,
+    100px 100px,
+    auto;
   color: #e2e8f0;
 }
 
@@ -305,4 +335,78 @@ body.dark-mode {
   color: #16a34a;
   font-size: 0.95rem;
   white-space: nowrap;
+}
+
+/* Button group for "Checked" status and "Show Solution" button */
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Show Solution button */
+.show-solution-button {
+  background-color: var(--btn-primary) !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.5rem 1.25rem !important;
+  font-weight: 500;
+}
+
+.show-solution-button:hover:not(:disabled) {
+  background-color: var(--btn-primary-hover) !important;
+}
+
+/* Reset button */
+.reset-button {
+  background-color: #ef4444 !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.5rem 1.25rem !important;
+  font-weight: 500;
+}
+
+.reset-button:hover:not(:disabled) {
+  background-color: #dc2626 !important;
+}
+
+/* Solution section */
+.solution-section {
+  margin-top: 1.5rem;
+  background: var(--model-answer-bg);
+  border-left: 4px solid var(--model-answer-border);
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+  animation: slideIn 0.3s ease-in-out;
+}
+
+.solution-section h3 {
+  color: var(--model-answer-border);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+
+.solution-section p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Animation for solution appearing */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
