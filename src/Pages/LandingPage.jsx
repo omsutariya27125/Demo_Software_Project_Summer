@@ -63,7 +63,7 @@ const LandingPage = ({ onLoginSuccess }) => {
 
     setLoading(false);
 
-    if (result.success) {
+    if (result.Success) {
       localStorage.setItem('authToken', result.access_token || "demo-token");
       setMessage({
         type: "success",

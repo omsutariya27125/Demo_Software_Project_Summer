@@ -29,7 +29,7 @@ const setThemePreference = (darkMode) => {
 };
 
 export const topicChapters = {
-    Calculus: ['Limits', 'Differentiation', 'Definite Integration'],
+    Calculus: ['Limits', 'Differentiation', 'Definite Integration', 'Indefinite Integration', 'Applications of Derivatives', 'Applications of Integrals'],
     'Linear Algebra': ['Matrices', 'Determinants'],
     Trigonometry: ['Identities', 'Functions', 'Equations'],
     'Coordinate Geometry': ['Straight Lines', 'Circles', 'Conic Sections'],
@@ -37,6 +37,11 @@ export const topicChapters = {
     'Complex Numbers': ['Algebra', 'Polar Form'],
     Vectors: ['Dot Product', 'Magnitude', 'Cross Product'],
     '3D Geometry': ['Distance Formula', 'Planes', 'Lines'],
+    intermediate: ['Intermediate Chapter 1', 'Intermediate Chapter 2'],
+    xy: ['XY Chapter 1', 'XY Chapter 2'],
+    hello: ['Hello Chapter 1', 'Hello Chapter 2'],
+    a: ['A Chapter 1', 'A Chapter 2'],
+    b: ['B Chapter 1', 'B Chapter 2'],
 };
 
 export const slugifyTopic = (topic) =>
@@ -189,10 +194,10 @@ const Chapter = () => {
                                 <h3>{chapter}</h3>
                                 <p>{(chapterRows[index]?.question_count ?? chapterQuestionCounts[chapter]) || 0} practice question{((chapterRows[index]?.question_count ?? chapterQuestionCounts[chapter]) || 0) === 1 ? '' : 's'} ready</p>
                             </div>
-                            <button className="chapter-action">
+                            <Link to="/question" className="chapter-action">
                                 Start
-                                <i className="fas fa-arrow-right"></i>
-                            </button>
+                            <i className="fas fa-arrow-right"></i>
+                            </Link>
                         </article>
                     ))}
                 </div>

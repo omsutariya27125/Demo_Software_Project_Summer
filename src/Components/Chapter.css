@@ -211,15 +211,15 @@
 
 .chapter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  gap: 24px;
 }
 
 .chapter-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 190px;
+  height: 450px;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
