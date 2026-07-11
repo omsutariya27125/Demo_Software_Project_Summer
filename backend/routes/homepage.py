@@ -192,12 +192,16 @@ def get_chapter(chapter: bool = False, token: str | None = None, authorization: 
 
     if(chapter):
         chapters_list = list(chapter_collection.find({}, {"_id": 0, "Topic": 1, "Chapters": 1}))
+        if not chapters_list:
+            raise HTTPException(status_code=404, detail="No chapters found.")
         return {
             "success": True,
             "data": chapters_list
         }
     else:
         topic_list = list(chapter_collection.find({}, {"_id": 0, "Topic": 1}))
+        if not topic_list:
+            raise HTTPException(status_code=404, detail="No topics found.")
         return {
             "success": True,
             "topics": topic_list

@@ -20,7 +20,7 @@ return (
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>
-        <Route path="/question/:ChapterName" element={<Question />} />
+        <Route path="/question/:TopicName/:ChapterName" element={<Question />} />
         <Route path="/chapter" element={<Chapter />} />
         <Route path="/chapter/:topicSlug" element={<Chapter />} />
         <Route path="*" element={<div>Fuck SAURABH Hard</div>} />

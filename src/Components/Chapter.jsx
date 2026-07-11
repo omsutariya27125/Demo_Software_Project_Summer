@@ -169,7 +169,7 @@ const Chapter = () => {
                     ready
                   </p> */}
                 </div>
-                <Link to={`/question/Functions`} className="chapter-link">
+                <Link to={`/question/${slugifyTopic(currentTopic?.name)}/${chapter}`} className="chapter-link">
                   <button className="chapter-action">
                     Start
                     <i className="fas fa-arrow-right"></i>

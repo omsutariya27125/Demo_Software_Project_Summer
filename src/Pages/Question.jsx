@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './Question.css';
+import { MathRenderer } from '../Components/MathRender';
+import { slugifyTopic } from '../Components/Chapter';
 import {apiGet} from '../Utils/api';
 
 const mathQuestions = [
     {
         id: 'math1',
-        type: 'mcq',
-        text: 'What is the value of π (pi) rounded to two decimal places?',
+        type: 'mcq', // Field not in DB
+        // Chapter field is not included here, but it can be added if needed for filtering or categorization.
+        text: 'What is the value of π (pi) rounded to two decimal places?', // field name is "question" in DB
         options: [
             { id: 'a', text: '3.14' },
             { id: 'b', text: '3.16' },
@@ -15,6 +18,7 @@ const mathQuestions = [
             { id: 'd', text: '3.12' },
         ],
         correctOptionId: 'a',
+        // The solution field is not in the DB, but it can be added if needed for providing explanation.
         solution: 'π (pi) is a mathematical constant approximately equal to 3.14159... When rounded to two decimal places, it equals 3.14.',
     },
     {
@@ -78,41 +82,41 @@ function QuestionCard({
     const handleOptionChange = (optionId) => {
         if (submitted) return;
         setSelectedOption(optionId);
-        onAnswer(question.id, optionId);
+        onAnswer(question?.question_id, optionId);
     };
 
     const handleReset = () => {
         setSelectedOption(null);
         setSubjectiveAnswer('');
         setShowSolution(false);
-        onReset(question.id);
+        onReset(question?.question_id);
     };
 
     return (
         <div className="question-card">
-            <div className="question-text">{question.text}</div>
+            <div className="question-text"><MathRenderer text={question?.question} /></div>
 
-            {question.type === 'mcq' ? (
+            {question?.type === 'mcq' ? (
                 <div className="options-list">
-                    {question.options.map((option) => {
-                        const isSelected = selectedOption === option.id;
-                        const isSelectedCorrect = submitted && isSelected && option.id === question.correctOptionId;
-                        const isSelectedWrong = submitted && isSelected && option.id !== question.correctOptionId;
-                        const isCorrectHighlight = isSelectedCorrect || (submitted && showSolution && option.id === question.correctOptionId);
+                    {question?.options.map((option) => {
+                        const isSelected = selectedOption === option.option_id;
+                        const isSelectedCorrect = submitted && isSelected && option.option_id === question?.correctOptionId;
+                        const isSelectedWrong = submitted && isSelected && option.option_id !== question?.correctOptionId;
+                        const isCorrectHighlight = isSelectedCorrect || (submitted && showSolution && option.option_id === question?.correctOptionId);
                         return (
                             <label
-                                key={option.id}
+                                key={option.option_id}
                                 className={`option-item ${isSelected ? 'selected' : ''} ${isCorrectHighlight ? 'correct' : ''} 
                                     ${isSelectedWrong ? 'wrong' : ''} ${submitted ? 'disabled' : ''}`}
                             >
                                 <input
                                     type="radio"
-                                    name={question.id}
+                                    name={question?.question_id}
                                     checked={isSelected}
-                                    onChange={() => handleOptionChange(option.id)}
+                                    onChange={() => handleOptionChange(option.option_id)}
                                     disabled={submitted}
                                 />
-                                <span className="option-text">{option.text}</span>
+                                <span className="option-text"><MathRenderer text={option.text} /></span>
                                 {isCorrectHighlight && <span className="badge correct-badge">Correct</span>}
                                 {isSelectedWrong && <span className="badge wrong-badge">Wrong</span>}
                             </label>
@@ -129,14 +133,14 @@ function QuestionCard({
                         onChange={(e) => {
                             if (submitted) return;
                             setSubjectiveAnswer(e.target.value);
-                            onAnswer(question.id, e.target.value);
+                            onAnswer(question?.id, e.target.value);
                         }}
                         disabled={submitted}
                     />
                     {submitted && (
                         <div className="model-answer">
                             <strong>Model Answer</strong>
-                            <p>{question.modelAnswer}</p>
+                            <p>{question?.modelAnswer}</p>
                         </div>
                     )}
                 </div>
@@ -151,9 +155,9 @@ function QuestionCard({
                 {!submitted ? (
                     <button
                         className="check-button"
-                        onClick={() => onCheck(question.id)}
+                        onClick={() => onCheck(question?.question_id)}
                         disabled={
-                            question.type === 'mcq'
+                            question?.type === 'mcq'
                                 ? !selectedOption
                                 : !subjectiveAnswer.trim()
                         }
@@ -187,7 +191,7 @@ function QuestionCard({
             {submitted && showSolution && (
                 <div className="solution-section">
                     <h3>Solution</h3>
-                    <p>{question.solution || (question.type === 'subjective' ? question.modelAnswer : 'Solution not available')}</p>
+                    <p><MathRenderer text={question?.solution || (question?.type === 'subjective' ? question?.modelAnswer : 'Solution not available')} /></p>
                 </div>
             )}
         </div>
@@ -199,8 +203,10 @@ export default function Question() {
     const [submittedQuestions, setSubmittedQuestions] = useState({});
     const [currentIndex, setCurrentIndex] = useState(0);
     const [darkMode, setDarkMode] = useState(() => localStorage.getItem('mathGeniusTheme') === 'dark');
-    const { ChapterName } = useParams();
-    const [question, setQuestion] = useState(null);
+    const { ChapterName, TopicName } = useParams();
+    const [questions, setQuestions] = useState([]);
+
+
 
     useEffect(() => {
         const nextTheme = darkMode ? 'dark' : 'light';
@@ -214,16 +220,12 @@ export default function Question() {
         };
     }, [darkMode]);
 
-    const goToPrevious = () =>
-        setCurrentIndex((prev) => Math.max(prev - 1, 0));
-    const goToNext = () =>
-        setCurrentIndex((prev) => Math.min(prev + 1, mathQuestions.length - 1));
-
     useEffect(() => {
         const getQuestion = async () => {
             try {
-                const question = await apiGet(`/q/${ChapterName}`);
-                console.log('Fetched question data:', question);
+                const data = await apiGet(`/q/${ChapterName}`);
+                console.log('Fetched question data:', data.question);
+                setQuestions(data.question);
             } catch (error) {
                 console.error('Error fetching question data:', error);
             }
@@ -231,6 +233,9 @@ export default function Question() {
 
         getQuestion();
     }, []);
+
+    const goToPrevious = () => setCurrentIndex((prev) => Math.max(prev - 1, 0));
+    const goToNext = () => setCurrentIndex((prev) => Math.min(prev + 1, questions.length - 1));
 
     const handleAnswer = (questionId, answer) => {
         setAnswers((prev) => ({ ...prev, [questionId]: answer }));
@@ -255,20 +260,18 @@ export default function Question() {
 
     const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
-    const currentQuestion = mathQuestions[currentIndex];
-    const isCurrentSubmitted = !!submittedQuestions[currentQuestion.id];
+    const currentQuestion = questions[currentIndex];
+    const isCurrentSubmitted = !!submittedQuestions[currentQuestion?.question_id];
 
     return (
 
         <>
-            
-
             <div className={`question-page ${darkMode ? 'dark' : ''}`}>
                 {/* Top bar – outside the question card, at the very top of the page */}
                 <div className="top-bar">
                 <button
                     className="back-chapters-btn"
-                    onClick={() => (window.location.href = "/chapter")}
+                    onClick={() => (window.location.href = `/chapter/${slugifyTopic(TopicName)}`)}
                 >
                     ← Back to Chapters
                 </button>
@@ -276,9 +279,8 @@ export default function Question() {
                     <i className={`fas ${darkMode ? 'fa-sun' : 'fa-moon'}`}></i>
                 </button>
             </div>
-
                 <QuestionCard
-                    key={currentQuestion.id}
+                    key={currentQuestion?.question_id}
                     question={currentQuestion}
                     submitted={isCurrentSubmitted}
                     onCheck={handleCheck}
@@ -287,7 +289,7 @@ export default function Question() {
                     onPrev={goToPrevious}
                     onNext={goToNext}
                     isFirst={currentIndex === 0}
-                    isLast={currentIndex === mathQuestions.length - 1}
+                    isLast={currentIndex === questions.length - 1}
                 />
             </div>
         </>
