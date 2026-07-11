@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 import './Dashboard.css';
 import { slugifyTopic } from './Chapter';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
+import { apiGet } from '../Utils/api';
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 const topicIcons = {
   Calculus: 'fa-chart-area',
@@ -88,7 +89,7 @@ const weeklyChartOptions = {
 
 export default function Dashboard() {
 
-  const [topics, setTopics] = useState(topicsInitial);
+  const [topics, setTopics] = useState([]);
   const [showAllTopics, setShowAllTopics] = useState(false);
   const navigate = useNavigate();
 
@@ -107,11 +108,32 @@ export default function Dashboard() {
     return 'Review';
   };
 
-  const visibleTopics = showAllTopics ? topics : topics.slice(0, 4);
+  useEffect(() => {
+    const getTopics = async () => {
+      try {
+        const data = await apiGet('/chapter');
+        if (data?.topics) {
+          const topics = data.topics.map((topic) => ({
+            name: topic.Topic.Name,
+            status: "not_started",
+            icon: topic.Topic.icon
+          }));
+          await setTopics(topics);
+        }
+      } catch (error) {
+        console.error('Error fetching topics:', error);
+      }
+    };
+
+    getTopics();
+  }, []);
 
   const handleTopicOpen = (topicName) => {
-    navigate(`/chapter/${slugifyTopic(topicName)}`);
-  };
+    const slug = slugifyTopic(topicName);
+    navigate(`/chapter/${slug}`);
+  }
+
+  const visibleTopics = showAllTopics ? topics : topics.slice(0, 4);
 
   return (
     <>
@@ -133,7 +155,7 @@ export default function Dashboard() {
               }}
             >
               <div className="topic-card-icon">
-                <i className={`fas ${topicIcons[topic.name] || 'fa-book'}`}></i>
+                <i className={`fas ${topic.icon || 'fa-book'}`}></i>
               </div>
               <span className="topic-card-name">{topic.name}</span>
               <button

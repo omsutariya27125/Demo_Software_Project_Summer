@@ -2,73 +2,36 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FaMoon, FaSun } from "react-icons/fa";
 import "./Chapter.css";
-
-const getChaptersData = async (topicSlug) => {
-  const topicName =
-    Object.keys(topicChapters).find(
-      (topic) => slugifyTopic(topic) === topicSlug,
-    ) || "Calculus";
-  const chapters = (topicChapters[topicName] || []).map((chapter) => ({
-    name: chapter,
-    question_count: chapterQuestionCounts[chapter] || 0,
-  }));
-
-  return { chapters };
-};
-
-const getTopicsProgression = async () => ({
-  topics: Object.keys(topicChapters).map((name) => ({ name })),
-});
+import { apiGet } from "../Utils/api";
 
 const isDarkTheme = () => {
   if (typeof window === "undefined") return false;
   return localStorage.getItem("mathGeniusTheme") === "dark";
 };
 
+export const slugifyTopic = (topic) => topic.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+// const getChaptersData = async (topicSlug) => {
+//   const topicName =
+//     Object.keys(topicChapters).find(
+//       (topic) => slugifyTopic(topic) === topicSlug,
+//     ) || "Calculus";
+//   const chapters = (topicChapters[topicName] || []).map((chapter) => ({
+//     name: chapter,
+//     question_count: chapterQuestionCounts[chapter] || 0,
+//   }));
+
+//   return { chapters };
+// };
+
+// const getTopicsProgression = async () => ({
+//   topics: Object.keys(topicChapters).map((name) => ({ name })),
+// });
+
 const setThemePreference = (darkMode) => {
   if (typeof window === "undefined") return;
   localStorage.setItem("mathGeniusTheme", darkMode ? "dark" : "light");
   document.body.className = darkMode ? "dark-theme" : "";
-};
-
-export const topicChapters = {
-  Calculus: [
-    "Limits",
-    "Differentiation",
-    "Definite Integration",
-    "Indefinite Integration",
-    "Applications of Derivatives",
-    "Applications of Integrals",
-  ],
-  "Linear Algebra": ["Matrices", "Determinants"],
-  Trigonometry: ["Identities", "Functions", "Equations"],
-  "Coordinate Geometry": ["Straight Lines", "Circles", "Conic Sections"],
-  Probability: ["Basic Probability", "Axioms", "Distributions"],
-  "Complex Numbers": ["Algebra", "Polar Form"],
-  Vectors: ["Dot Product", "Magnitude", "Cross Product"],
-  "3D Geometry": ["Distance Formula", "Planes", "Lines"],
-  intermediate: ["Intermediate Chapter 1", "Intermediate Chapter 2"],
-  xy: ["XY Chapter 1", "XY Chapter 2"],
-  hello: ["Hello Chapter 1", "Hello Chapter 2"],
-  a: ["A Chapter 1", "A Chapter 2"],
-  b: ["B Chapter 1", "B Chapter 2"],
-};
-
-export const slugifyTopic = (topic) =>
-  topic
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-
-const topicIcons = {
-  Calculus: "fa-chart-area",
-  "Linear Algebra": "fa-border-all",
-  Trigonometry: "fa-draw-polygon",
-  "Coordinate Geometry": "fa-chart-line",
-  Probability: "fa-dice",
-  "Complex Numbers": "fa-calculator",
-  Vectors: "fa-arrow-right",
-  "3D Geometry": "fa-cube",
 };
 
 const chapterQuestionCounts = {
@@ -96,68 +59,46 @@ const chapterQuestionCounts = {
   Lines: 1,
 };
 
+const fetchTopicChapters = async () => {
+    try {
+        const response = await apiGet('/chapter?chapter=true');
+        if (response.success) {
+            const topicChapters = response.data.map((data) => ({
+                name: data.Topic.Name,
+                icon: data.Topic.icon,
+                chapters: data.Chapters,
+            }));
+            console.log('Fetched topicChapters:', topicChapters);
+            return topicChapters;
+        } else { return []; }
+    } catch (error) {
+        console.error('Error fetching topic chapters:', error);
+    }
+}
+
 const Chapter = () => {
   const { topicSlug } = useParams();
   const [darkMode, setDarkMode] = useState(() => isDarkTheme());
-  const [chapterRows, setChapterRows] = useState([]);
-  const [allTopics, setAllTopics] = useState(Object.keys(topicChapters));
-
-  const topicName = useMemo(() => {
-    return (
-      Object.keys(topicChapters).find(
-        (topic) => slugifyTopic(topic) === topicSlug,
-      ) || "Calculus"
-    );
-  }, [topicSlug]);
-
-  const chapters = chapterRows.length
-    ? chapterRows.map((chapter) => chapter.name)
-    : topicChapters[topicName];
-  const totalQuestions = chapterRows.length
-    ? chapterRows.reduce(
-        (total, chapter) => total + (chapter.question_count || 0),
-        0,
-      )
-    : chapters.reduce(
-        (total, chapter) => total + (chapterQuestionCounts[chapter] || 0),
-        0,
-      );
+  const [allTopics, setAllTopics] = useState([]);
 
   useEffect(() => {
     setThemePreference(darkMode);
   }, [darkMode]);
 
   useEffect(() => {
-    let active = true;
-
     const loadChapters = async () => {
       try {
-        const [chapterData, topicData] = await Promise.all([
-          getChaptersData(topicSlug),
-          getTopicsProgression(),
-        ]);
-
-        if (!active) return;
-
-        if (chapterData?.chapters?.length) {
-          setChapterRows(chapterData.chapters);
-        }
-
-        if (topicData?.topics?.length) {
-          setAllTopics(topicData.topics.map((topic) => topic.name));
-        }
+        setAllTopics(await fetchTopicChapters());
       } catch (error) {
         console.error("Chapters API error:", error);
-        setChapterRows([]);
       }
     };
-
     loadChapters();
+  }, []);
 
-    return () => {
-      active = false;
-    };
-  }, [topicSlug]);
+  const currentTopic = useMemo(() => {
+    return allTopics.find(topic => slugifyTopic(topic.name) === topicSlug);
+  }, [allTopics, topicSlug]);
 
   return (
     <div className={`chapters-root ${darkMode ? "dark" : ""}`}>
@@ -179,14 +120,12 @@ const Chapter = () => {
 
           <div className="chapters-hero-main">
             <div className="chapters-topic-icon">
-              <i className={`fas ${topicIcons[topicName] || "fa-book"}`}></i>
+              <i className={`fas ${currentTopic?.icon || "fa-book"}`}></i>
             </div>
             <div className="chapters-hero-text">
-              <p className="chapters-eyebrow">Selected Topic</p>
-              <h1>{topicName}</h1>
+              <h1>{currentTopic?.name}</h1>
               <p className="chapters-summary">
-                {chapters.length} chapters available with {totalQuestions}{" "}
-                mapped practice questions.
+                {currentTopic?.chapters.length} chapters available with some practice questions.
               </p>
             </div>
           </div>
@@ -196,28 +135,28 @@ const Chapter = () => {
           <div className="topic-list-panel">
             <h3>All Topics</h3>
             <div className="topic-list">
-              {allTopics.map((topic) => (
+              {allTopics.map((topic, idx) => (
                 <Link
-                  key={topic}
-                  to={`/chapter/${slugifyTopic(topic)}`}
-                  className={`topic-list-item ${topic === topicName ? "active" : ""}`}
+                  key={idx}
+                  to={`/chapter/${slugifyTopic(topic.name)}`}
+                  className={`topic-list-item ${topic.name === currentTopic.name ? "active" : ""}`}
                 >
-                  <i className={`fas ${topicIcons[topic] || "fa-book"}`}></i>
-                  <span>{topic}</span>
+                  <i className={`fas ${topic.icon || "fa-book"}`}></i>
+                  <span>{topic.name}</span>
                 </Link>
               ))}
             </div>
           </div>
 
           <div className="chapter-grid">
-            {chapters.map((chapter, index) => (
+            {currentTopic?.chapters.map((chapter, index) => (
               <article className="chapter-card" key={chapter}>
                 <div className="chapter-number">
                   {String(index + 1).padStart(2, "0")}
                 </div>
                 <div className="chapter-card-body">
                   <h3>{chapter}</h3>
-                  <p>
+                  {/* <p>
                     {(chapterRows[index]?.question_count ??
                       chapterQuestionCounts[chapter]) ||
                       0}{" "}
@@ -228,7 +167,7 @@ const Chapter = () => {
                       ? ""
                       : "s"}{" "}
                     ready
-                  </p>
+                  </p> */}
                 </div>
                 <Link to={`/question/Functions`} className="chapter-link">
                   <button className="chapter-action">
