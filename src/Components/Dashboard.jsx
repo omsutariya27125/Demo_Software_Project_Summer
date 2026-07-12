@@ -9,27 +9,7 @@ import { apiGet } from '../Utils/api';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
 
-const topicIcons = {
-  Calculus: 'fa-chart-area',
-  'Linear Algebra': 'fa-border-all',
-  Trigonometry: 'fa-draw-polygon',
-  'Coordinate Geometry': 'fa-chart-line',
-  Probability: 'fa-dice',
-  'Complex Numbers': 'fa-calculator',
-  Vectors: 'fa-arrow-right',
-  '3D Geometry': 'fa-cube',
-};
-
-const topicsInitial = [
-  { name: 'Calculus', status: 'in_progress' },
-  { name: 'Linear Algebra', status: 'not_started' },
-  { name: 'Trigonometry', status: 'completed' },
-  { name: 'Coordinate Geometry', status: 'in_progress' },
-  { name: 'Probability', status: 'not_started' },
-  { name: 'Complex Numbers', status: 'completed' },
-  { name: 'Vectors', status: 'in_progress' },
-  { name: '3D Geometry', status: 'not_started' },
-];
+// TODO: Bring LeaderBoard Data and Personal Data from Api.
 
 const leaderboardData = [
   { rank: 1, name: 'Ananya S.', questionsSolved: 2890, accuracy: 92.3, score: 98.5 },
@@ -93,15 +73,6 @@ export default function Dashboard() {
   const [showAllTopics, setShowAllTopics] = useState(false);
   const navigate = useNavigate();
 
-  const handleTopicClick = (index) => {
-    const newTopics = [...topics];
-    const current = newTopics[index].status;
-    if (current === 'not_started') newTopics[index].status = 'in_progress';
-    else if (current === 'in_progress') newTopics[index].status = 'completed';
-    else newTopics[index].status = 'not_started';
-    setTopics(newTopics);
-  };
-
   const getTopicButtonLabel = (status) => {
     if (status === 'not_started') return 'Begin';
     if (status === 'in_progress') return 'Continue';
@@ -158,15 +129,9 @@ export default function Dashboard() {
                 <i className={`fas ${topic.icon || 'fa-book'}`}></i>
               </div>
               <span className="topic-card-name">{topic.name}</span>
-              <button
-                className={`topic-btn ${topic.status}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  handleTopicClick(topics.indexOf(topic));
-                }}
-              >
+              <div className={`topic-btn ${topic.status}`}>
                 {getTopicButtonLabel(topic.status)}
-              </button>
+              </div>
             </div>
           ))}
         </div>

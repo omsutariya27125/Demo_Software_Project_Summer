@@ -79,6 +79,8 @@ const HomePage = () => {
 
   };
 
+  // TODO: SideBar and TopBar moves with components selected, Fix it in place
+
   return (
     <div className={`dashboard-root ${darkMode === 'dark' ? 'dark' : ''}`}>
       {/* Sidebar with Router Links */}
@@ -91,7 +93,7 @@ const HomePage = () => {
         </div>
         <nav className="sidebar-nav">
           {/* Use Link and active class based on location */}
-          <Link to="/home/" className={`nav-item ${location.pathname === '/home/' ? 'active' : ''}`}>
+          <Link to="/home" className={`nav-item ${location.pathname === '/home' ? 'active' : ''}`}>
             <i className="fas fa-th-large nav-icon"></i>
             <span className={`nav-text ${minimized ? "hidden" : ''}`}>Dashboard</span>
           </Link>
@@ -104,10 +106,10 @@ const HomePage = () => {
             <i className="fas fa-robot nav-icon"></i>
             <span className={`nav-text ${minimized ? 'hidden' : ''}`}>AI Analyzer</span>
           </a>
-          <a className="nav-item">
-            <i className="fas fa-clipboard-question nav-icon"></i>
+          <Link to="/test" className="nav-item">
+            <i className="fas fa-clipboard nav-icon"></i>
             <span className={`nav-text ${minimized ? 'hidden' : ''}`}>Test / Quiz</span>
-          </a>
+          </Link>
           <a className="nav-item">
             <i className="fas fa-sliders-h nav-icon"></i>
             <span className={`nav-text ${minimized ? 'hidden' : ''}`}>Personalize</span>

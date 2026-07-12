@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Profile.css';
 
-// Mock data – replace with API calls
+// TODO: Replace basic mock datawith API calls
 const mockProfile = {
   personal: {
     fullName: 'Rohan Kumar',

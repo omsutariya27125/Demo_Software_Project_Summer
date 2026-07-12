@@ -20,9 +20,13 @@ return (
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
         </Route>
-        <Route path="/question/:TopicName/:ChapterName" element={<Question />} />
-        <Route path="/chapter" element={<Chapter />} />
         <Route path="/chapter/:topicSlug" element={<Chapter />} />
+        <Route path="/question/:TopicSlug/:ChapterName" element={<Question />} />
+        <Route path="/test">
+          <Route index element={<Chapter asTest = {true} />} />
+          <Route path=":testId" element={<div>Test ID Page</div>} />
+          <Route path="ongoingTest" element={<div>Ongoing Test Page</div>} />
+        </Route>
         <Route path="*" element={<div>Fuck SAURABH Hard</div>} />
       </Routes>
     

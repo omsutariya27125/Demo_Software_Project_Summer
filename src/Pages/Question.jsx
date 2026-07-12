@@ -5,67 +5,9 @@ import { MathRenderer } from '../Components/MathRender';
 import { slugifyTopic } from '../Components/Chapter';
 import {apiGet} from '../Utils/api';
 
-const mathQuestions = [
-    {
-        id: 'math1',
-        type: 'mcq', // Field not in DB
-        // Chapter field is not included here, but it can be added if needed for filtering or categorization.
-        text: 'What is the value of π (pi) rounded to two decimal places?', // field name is "question" in DB
-        options: [
-            { id: 'a', text: '3.14' },
-            { id: 'b', text: '3.16' },
-            { id: 'c', text: '2.14' },
-            { id: 'd', text: '3.12' },
-        ],
-        correctOptionId: 'a',
-        // The solution field is not in the DB, but it can be added if needed for providing explanation.
-        solution: 'π (pi) is a mathematical constant approximately equal to 3.14159... When rounded to two decimal places, it equals 3.14.',
-    },
-    {
-        id: 'math2',
-        type: 'mcq',
-        text: 'Solve for x: 2x + 5 = 15',
-        options: [
-            { id: 'a', text: 'x = 10' },
-            { id: 'b', text: 'x = 5' },
-            { id: 'c', text: 'x = 7' },
-            { id: 'd', text: 'x = -5' },
-        ],
-        correctOptionId: 'b',
-        solution: 'Starting with 2x + 5 = 15, subtract 5 from both sides: 2x = 10. Then divide both sides by 2: x = 5.',
-    },
-    {
-        id: 'math3',
-        type: 'mcq',
-        text: 'What is the area of a circle with radius r?',
-        options: [
-            { id: 'a', text: 'πr²' },
-            { id: 'b', text: '2πr' },
-            { id: 'c', text: 'πd' },
-            { id: 'd', text: '4πr²' },
-        ],
-        correctOptionId: 'a',
-        solution: 'The area of a circle is calculated using the formula A = πr², where r is the radius. This comes from integrating the circumference or using the geometric derivation of circular areas.',
-    },
-    {
-        id: 'math4',
-        type: 'subjective',
-        text: 'Prove that the sum of angles in a triangle is 180 degrees.',
-        modelAnswer:
-            'Draw a line parallel to one side through the opposite vertex. Use alternate interior angles to show the three angles form a straight line (180°).',
-        solution: 'This can be proven using the properties of parallel lines. When you draw a line parallel to the base through the opposite vertex, the alternate interior angles are equal to the base angles of the triangle. Since the angles on a straight line sum to 180°, the three angles of the triangle must also sum to 180°.',
-    },
-    {
-        id: 'math5',
-        type: 'subjective',
-        text: 'Find the derivative of f(x) = 3x² + 2x - 5 with respect to x.',
-        modelAnswer: "f'(x) = 6x + 2",
-        solution: "Using the power rule, the derivative of 3x² is 6x, the derivative of 2x is 2, and the derivative of -5 (constant) is 0. Therefore, f'(x) = 6x + 2.",
-    },
-];
-
 function QuestionCard({
     question,
+    answered,
     submitted,
     onCheck,
     onAnswer,
@@ -75,7 +17,7 @@ function QuestionCard({
     isLast,
     onReset,
 }) {
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOption, setSelectedOption] = useState(answered === null ? null : answered);
     const [subjectiveAnswer, setSubjectiveAnswer] = useState('');
     const [showSolution, setShowSolution] = useState(false);
 
@@ -203,7 +145,7 @@ export default function Question() {
     const [submittedQuestions, setSubmittedQuestions] = useState({});
     const [currentIndex, setCurrentIndex] = useState(0);
     const [darkMode, setDarkMode] = useState(() => localStorage.getItem('mathGeniusTheme') === 'dark');
-    const { ChapterName, TopicName } = useParams();
+    const { ChapterName, TopicSlug } = useParams();
     const [questions, setQuestions] = useState([]);
 
 
@@ -261,6 +203,7 @@ export default function Question() {
     const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
     const currentQuestion = questions[currentIndex];
+    const isAnswered = answers[currentQuestion?.question_id];
     const isCurrentSubmitted = !!submittedQuestions[currentQuestion?.question_id];
 
     return (
@@ -271,7 +214,7 @@ export default function Question() {
                 <div className="top-bar">
                 <button
                     className="back-chapters-btn"
-                    onClick={() => (window.location.href = `/chapter/${slugifyTopic(TopicName)}`)}
+                    onClick={() => (window.location.href = `/chapter/${slugifyTopic(TopicSlug)}`)}
                 >
                     ← Back to Chapters
                 </button>
@@ -282,6 +225,7 @@ export default function Question() {
                 <QuestionCard
                     key={currentQuestion?.question_id}
                     question={currentQuestion}
+                    answered={isAnswered}
                     submitted={isCurrentSubmitted}
                     onCheck={handleCheck}
                     onAnswer={handleAnswer}
