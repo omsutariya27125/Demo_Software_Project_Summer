@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
  //import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE = "http://127.0.0.1:8000"; // you can switch back later
+const API_BASE = "https://demo-backend-cf9b.onrender.com"; // you can switch back later
 
 const LandingPage = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
@@ -71,7 +71,7 @@ const LandingPage = ({ onLoginSuccess }) => {
       });
 
       setTimeout(() => {
-        navigate("/home/");
+        navigate("/home");
       }, 1000);
 
     } else {

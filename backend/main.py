@@ -97,6 +97,12 @@ async def universal_exception_handler(request: Request, exc: Exception):
             "traceback": traceback.format_exc().split("\n")
         }
     )
+    
+@app.router.get("/")
+def ping():
+    return{
+        "message": "You have connected to the API." 
+    }
 
 app.include_router(auth_router)
 app.include_router(homepage_router)

@@ -17,31 +17,6 @@ const setThemePreference = (darkMode) => {
   document.body.className = darkMode ? "dark-theme" : "";
 };
 
-const chapterQuestionCounts = {
-  Limits: 1,
-  Differentiation: 1,
-  "Definite Integration": 1,
-  Matrices: 2,
-  Determinants: 1,
-  Identities: 1,
-  Functions: 1,
-  Equations: 1,
-  "Straight Lines": 1,
-  Circles: 1,
-  "Conic Sections": 1,
-  "Basic Probability": 1,
-  Axioms: 1,
-  Distributions: 1,
-  Algebra: 2,
-  "Polar Form": 1,
-  "Dot Product": 1,
-  Magnitude: 1,
-  "Cross Product": 1,
-  "Distance Formula": 1,
-  Planes: 1,
-  Lines: 1,
-};
-
 const fetchTopicChapters = async () => {
     try {
         const response = await apiGet('/chapter?chapter=true');
