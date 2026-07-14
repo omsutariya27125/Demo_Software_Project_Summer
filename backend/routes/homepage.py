@@ -206,12 +206,3 @@ def get_chapter(chapter: bool = False, token: str | None = None, authorization: 
             "success": True,
             "topics": topic_list
         }
-
-    # chapter_data = chapter_collection.find_one({"chapter": chapter})
-    # if not chapter_data:
-    #     raise HTTPException(status_code=404, detail="Chapter not found")
-
-    # return {
-    #     "success": True,
-    #     "chapter": chapter_data
-    # }

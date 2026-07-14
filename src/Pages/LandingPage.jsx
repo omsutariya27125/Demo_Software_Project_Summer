@@ -71,7 +71,7 @@ const LandingPage = ({ onLoginSuccess }) => {
       });
 
       setTimeout(() => {
-        navigate("/home/");
+        navigate("/home");
       }, 1000);
 
     } else {

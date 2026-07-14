@@ -90,7 +90,7 @@ const HomePage = () => {
   // TODO: SideBar and TopBar moves with components selected, Fix it in place
 
   return (
-    <div className={`dashboard-root ${darkMode === 'dark' ? 'dark' : ''}`}>
+    <div className={`dashboard-root ${minimized ? "sidebar-minimized" : ""}`}>
       {/* Sidebar with Router Links */}
       <aside className={`sidebar ${minimized ? 'minimized' : ''}`}>
         <div className="sidebar-brand">
@@ -182,7 +182,9 @@ const HomePage = () => {
           </div>
         </header>
 
-        <Outlet />
+        <div className="page-content">
+          <Outlet />
+        </div>
 
       </div>
     </div>
