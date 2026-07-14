@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.FAST_API_BASE;
+const API_BASE_URL = "https://demo-backend-cf9b.onrender.com";
 
 export const getApiUrl = (path) => {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;

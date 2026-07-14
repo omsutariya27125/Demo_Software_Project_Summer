@@ -22,6 +22,14 @@ const HomePage = () => {
   const navigate = useNavigate();
   const avatarRef = useRef(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      navigate("/landingpage", { replace: true });
+    }
+  }, [navigate]);
+
   const pageTitle = (() => {
     switch (location.pathname) {
       case '/home/profile':

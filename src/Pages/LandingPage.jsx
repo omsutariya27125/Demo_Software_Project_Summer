@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE = process.env.FAST_API_BASE; // you can switch back later
+const API_BASE = "https://demo-backend-cf9b.onrender.com"; // you can switch back later
 
 const LandingPage = ({ onLoginSuccess }) => {
   const navigate = useNavigate();

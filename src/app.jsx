@@ -27,7 +27,7 @@ return (
           <Route path=":testId" element={<div>Test ID Page</div>} />
           <Route path="ongoingTest" element={<div>Ongoing Test Page</div>} />
         </Route>
-        <Route path="*" element={<div>Fuck SAURABH Hard</div>} />
+        <Route path="*" element={<div>404 Page not found.</div>} />
       </Routes>
     
   );
