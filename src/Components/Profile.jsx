@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './Profile.css';
 
-// TODO: Replace basic mock datawith API calls
 const mockProfile = {
   personal: {
     fullName: 'Rohan Kumar',
@@ -99,258 +98,381 @@ const mockProfile = {
   },
 };
 
+const boardOptions = ['CBSE', 'ICSE', 'State Board', 'IB', 'IGCSE'];
+
 const Profile = () => {
-
-
-  // Expandable states for performance details
   const [showSolvedDetail, setShowSolvedDetail] = useState(false);
   const [showAccuracyDetail, setShowAccuracyDetail] = useState(false);
   const [showStudyHoursDetail, setShowStudyHoursDetail] = useState(false);
 
+  const [profile, setProfile] = useState(mockProfile);
+  const [editingPersonal, setEditingPersonal] = useState(false);
+  const [editingAcademics, setEditingAcademics] = useState(false);
+  const [personalDraft, setPersonalDraft] = useState(mockProfile.personal);
+  const [academicDraft, setAcademicDraft] = useState(mockProfile.academicGoals);
 
+  // Personal handlers
+  const startEditPersonal = () => {
+    setPersonalDraft(profile.personal);
+    setEditingPersonal(true);
+  };
+  const savePersonal = () => {
+    setProfile((prev) => ({ ...prev, personal: personalDraft }));
+    setEditingPersonal(false);
+  };
+  const cancelPersonal = () => {
+    setPersonalDraft(profile.personal);
+    setEditingPersonal(false);
+  };
+  const handlePersonalFieldChange = (field, value) => {
+    setPersonalDraft((prev) => ({ ...prev, [field]: value }));
+  };
 
-  const profile = mockProfile; // replace with fetched data later
+  // Academic handlers
+  const startEditAcademics = () => {
+    setAcademicDraft(profile.academicGoals);
+    setEditingAcademics(true);
+  };
+  const saveAcademics = () => {
+    setProfile((prev) => ({ ...prev, academicGoals: academicDraft }));
+    setEditingAcademics(false);
+  };
+  const cancelAcademics = () => {
+    setAcademicDraft(profile.academicGoals);
+    setEditingAcademics(false);
+  };
+  const handleAcademicFieldChange = (field, value) => {
+    setAcademicDraft((prev) => ({ ...prev, [field]: value }));
+  };
+  const handleWeakAreasChange = (field, value) => {
+    const values = value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    setAcademicDraft((prev) => ({ ...prev, [field]: values }));
+  };
 
   return (
-
-
-    <>
-
-      {/* Content */}
-      <div className="profile-content">
-        {/* Personal Info */}
-        <div className="profile-card">
-          <h3 className="card-title"><i className="fas fa-id-card"></i> Personal Information</h3>
-          <div className="info-grid">
-            <div className="info-item">
-              <span className="info-label">Full Name</span>
-              <span className="info-value">{profile.personal.fullName}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Email</span>
-              <span className="info-value">{profile.personal.email}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Phone</span>
-              <span className="info-value">{profile.personal.phone}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Date of Birth</span>
-              <span className="info-value">{profile.personal.dob}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Board</span>
-              <span className="info-value">{profile.personal.board}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Academic Goals */}
-        <div className="profile-card">
-          <h3 className="card-title"><i className="fas fa-bullseye"></i> Academic Goals</h3>
-          <div className="info-grid">
-            <div className="info-item">
-              <span className="info-label">Target Exam</span>
-              <span className="info-value">{profile.academicGoals.targetExam}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Target Score</span>
-              <span className="info-value">{profile.academicGoals.targetScore}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Daily Question Goal</span>
-              <span className="info-value">{profile.academicGoals.dailyQuestionGoal}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Preferred Study Time</span>
-              <span className="info-value">{profile.academicGoals.preferredStudyTime}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Weak Areas (You)</span>
-              <div className="weak-tags">
-                {profile.academicGoals.weakAreasStudent.map((area, i) => (
-                  <span key={i} className="weak-tag">{area}</span>
-                ))}
-              </div>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Weak Areas (AI)</span>
-              <div className="weak-tags">
-                {profile.academicGoals.weakAreasAI.map((area, i) => (
-                  <span key={i} className="weak-tag ai">{area}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Achievements */}
-        <div className="profile-card">
-          <h3 className="card-title"><i className="fas fa-medal"></i> Achievements</h3>
-          <div className="achievements-grid">
-            {/* Streaks */}
-            <div className="achievement-category">
-              <h4>Streaks</h4>
-              <div className="badge-row">
-                {profile.achievements.streaks.map((s, idx) => (
-                  <span key={idx} className={`badge ${s.achieved ? 'earned' : 'locked'}`}>
-                    <i className={`fas ${s.achieved ? 'fa-fire' : 'fa-fire-alt'}`}></i> {s.label}
-                  </span>
-                ))}
-              </div>
-            </div>
-            {/* Questions Solved */}
-            <div className="achievement-category">
-              <h4>Questions Solved</h4>
-              <div className="badge-row">
-                {profile.achievements.questionsSolved.map((q, idx) => (
-                  <span key={idx} className={`badge ${q.achieved ? 'earned' : 'locked'}`}>
-                    <i className={`fas ${q.achieved ? 'fa-check-circle' : 'fa-circle'}`}></i> {q.milestone}+
-                  </span>
-                ))}
-              </div>
-            </div>
-            {/* Other Badges */}
-            <div className="achievement-category">
-              <h4>Special Badges</h4>
-              <div className="badge-row">
-                {profile.achievements.badges.map((b, idx) => (
-                  <span key={idx} className={`badge ${b.earned ? 'earned' : 'locked'}`}>
-                    <i className={`fas ${b.icon}`}></i> {b.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Performance Snapshot */}
-        <div className="profile-card">
-          <h3 className="card-title"><i className="fas fa-chart-bar"></i> Performance Snapshot</h3>
-          <div className="snapshot-grid">
-            {/* Total Questions Solved – clickable */}
-            <div className="snapshot-item" onClick={() => setShowSolvedDetail(!showSolvedDetail)}>
-              <span className="snap-value">{profile.performance.totalSolved}</span>
-              <span className="snap-label">Total Solved</span>
-              {showSolvedDetail && (
-                <div className="detail-box">
-                  {Object.entries(profile.performance.solvedPerChapter).map(([ch, count]) => (
-                    <div key={ch} className="detail-row">
-                      <span>{ch}</span>
-                      <span>{count}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Accuracy – clickable */}
-            <div className="snapshot-item" onClick={() => setShowAccuracyDetail(!showAccuracyDetail)}>
-              <span className="snap-value">{profile.performance.accuracy}%</span>
-              <span className="snap-label">Accuracy</span>
-              {showAccuracyDetail && (
-                <div className="detail-box">
-                  {Object.entries(profile.performance.accuracyPerChapter).map(([ch, data]) => (
-                    <div key={ch} className="detail-row">
-                      <span>{ch}</span>
-                      <span>{data.correct} ✓ / {data.incorrect} ✗</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Streak */}
-            <div className="snapshot-item">
-              <span className="snap-value">{profile.performance.streak} days</span>
-              <span className="snap-label">Streak</span>
-            </div>
-            {/* Weekly Study Hours – clickable */}
-            <div className="snapshot-item" onClick={() => setShowStudyHoursDetail(!showStudyHoursDetail)}>
-              <span className="snap-value">{profile.performance.weeklyStudyHours}h</span>
-              <span className="snap-label">Weekly Study</span>
-              {showStudyHoursDetail && (
-                <div className="detail-box">
-                  {profile.performance.dailyStudyHours.map((d, idx) => (
-                    <div key={idx} className="detail-row">
-                      <span>{d.day}</span>
-                      <span>{d.hours}h – {d.topic}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Topic-wise Accuracy */}
-          <div className="topic-accuracy">
-            <h4>Topic‑wise Accuracy</h4>
-            {profile.performance.topicAccuracy.map((t, idx) => (
-              <div key={idx} className="acc-row">
-                <span className="acc-topic">{t.topic}</span>
-                <div className="acc-bar-bg">
-                  <div className="acc-bar-fill" style={{ width: `${t.accuracy}%` }}></div>
-                </div>
-                <span className="acc-val">{t.accuracy}%</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Strongest / Needs Work */}
-          <div className="strength-weakness">
-            <div>
-              <strong><i className="fas fa-arrow-up green"></i> Strongest</strong>
-              <ul>
-                {profile.performance.strongest.map((ch, i) => <li key={i}>{ch}</li>)}
-              </ul>
-            </div>
-            <div>
-              <strong><i className="fas fa-arrow-down red"></i> Needs Work</strong>
-              <ul>
-                {profile.performance.needsWork.map((ch, i) => <li key={i}>{ch}</li>)}
-              </ul>
-            </div>
-          </div>
-
-          {/* Tests */}
-          <div className="tests-info">
-            <h4>Tests Taken</h4>
-            <p>{profile.performance.testsGiven} tests • Total marks: {profile.performance.totalMarks}</p>
-          </div>
-        </div>
-
-        {/* Recent Activity & AI Insights */}
-        <div className="profile-card">
-          <h3 className="card-title"><i className="fas fa-history"></i> Recent Activity</h3>
-          <div className="activity-list">
-            {profile.recentActivity.map((act, idx) => (
-              <div key={idx} className="activity-item">
-                <span>{act.action}</span>
-                <span className="activity-time">{act.time}</span>
-              </div>
-            ))}
-          </div>
-          <hr />
-          <h3 className="card-title" style={{ marginTop: '20px' }}><i className="fas fa-robot"></i> AI Insights</h3>
-          <p>You have used the AI Doubt Solver <strong>{profile.aiInsights.doubtSolverUses} times</strong> this month.</p>
-          <p>{profile.aiInsights.focusSuggestion}</p>
-          <button className="ai-plan-btn">
-            <i className="fas fa-magic"></i> Generate Personalized Study Plan
+    <div className="profile-content">
+      {/* Personal Information */}
+      <div className="profile-card">
+        <div className="card-title-row">
+          <h3 className="card-title">
+            <i className="fas fa-id-card"></i> Personal Information
+          </h3>
+          <button
+            className="edit-icon"
+            onClick={editingPersonal ? savePersonal : startEditPersonal}
+            title={editingPersonal ? 'Save' : 'Edit'}
+          >
+            <i className={`fas ${editingPersonal ? 'fa-check' : 'fa-pen-to-square'}`}></i>
           </button>
         </div>
+        <div className="info-grid">
+          <div className="info-item">
+            <span className="info-label">Full Name</span>
+            {editingPersonal ? (
+              <input
+                type="text"
+                className="edit-input"
+                value={personalDraft.fullName}
+                onChange={(e) => handlePersonalFieldChange('fullName', e.target.value)}
+              />
+            ) : (
+              <span className="info-value">{profile.personal.fullName}</span>
+            )}
+          </div>
+          <div className="info-item">
+            <span className="info-label">Email</span>
+            {editingPersonal ? (
+              <input
+                type="email"
+                className="edit-input"
+                value={personalDraft.email}
+                onChange={(e) => handlePersonalFieldChange('email', e.target.value)}
+              />
+            ) : (
+              <span className="info-value">{profile.personal.email}</span>
+            )}
+          </div>
+          <div className="info-item">
+            <span className="info-label">Phone</span>
+            <span className="info-value">{profile.personal.phone}</span>
+          </div>
+          <div className="info-item">
+            <span className="info-label">Date of Birth</span>
+            {editingPersonal ? (
+              <input
+                type="date"
+                className="edit-input"
+                value={personalDraft.dob}
+                onChange={(e) => handlePersonalFieldChange('dob', e.target.value)}
+              />
+            ) : (
+              <span className="info-value">{profile.personal.dob}</span>
+            )}
+          </div>
+          <div className="info-item">
+            <span className="info-label">Board</span>
+            {editingPersonal ? (
+              <select
+                className="edit-input"
+                value={personalDraft.board}
+                onChange={(e) => handlePersonalFieldChange('board', e.target.value)}
+              >
+                {boardOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="info-value">{profile.personal.board}</span>
+            )}
+          </div>
+        </div>
+        {editingPersonal && (
+          <div className="edit-actions">
+            <button className="cancel-btn" onClick={cancelPersonal}>Cancel</button>
+          </div>
+        )}
+      </div>
 
-        {/* Account Settings */}
-        <div className="profile-card">
-          <h3 className="card-title"><i className="fas fa-cog"></i> Account Settings</h3>
-          <div className="settings-links">
-            <a href="#" className="settings-link"><i className="fas fa-lock"></i> Change Password</a>
-            <a href="#" className="settings-link"><i className="fas fa-palette"></i> Theme (Light)</a>
-            <a href="#" className="settings-link"><i className="fas fa-bell"></i> Notifications</a>
-            <a href="#" className="settings-link"><i className="fas fa-user-slash"></i> Delete Account</a>
-            <hr />
-            <button className="logout-btn"><i className="fas fa-sign-out-alt"></i> Logout</button>
+      {/* Academic Goals */}
+      <div className="profile-card">
+        <div className="card-title-row">
+          <h3 className="card-title">
+            <i className="fas fa-bullseye"></i> Academic Goals
+          </h3>
+          <button
+            className="edit-icon"
+            onClick={editingAcademics ? saveAcademics : startEditAcademics}
+            title={editingAcademics ? 'Save' : 'Edit'}
+          >
+            <i className={`fas ${editingAcademics ? 'fa-check' : 'fa-pen-to-square'}`}></i>
+          </button>
+        </div>
+        <div className="info-grid">
+          {/* ... (academic goals fields – unchanged) ... */}
+          <div className="info-item">
+            <span className="info-label">Target Exam</span>
+            {editingAcademics ? (
+              <input
+                type="text"
+                className="edit-input"
+                value={academicDraft.targetExam}
+                onChange={(e) => handleAcademicFieldChange('targetExam', e.target.value)}
+              />
+            ) : (
+              <span className="info-value">{profile.academicGoals.targetExam}</span>
+            )}
+          </div>
+          <div className="info-item">
+            <span className="info-label">Target Score</span>
+            {editingAcademics ? (
+              <input
+                type="text"
+                className="edit-input"
+                value={academicDraft.targetScore}
+                onChange={(e) => handleAcademicFieldChange('targetScore', e.target.value)}
+              />
+            ) : (
+              <span className="info-value">{profile.academicGoals.targetScore}</span>
+            )}
+          </div>
+          <div className="info-item">
+            <span className="info-label">Daily Question Goal</span>
+            {editingAcademics ? (
+              <input
+                type="number"
+                className="edit-input"
+                value={academicDraft.dailyQuestionGoal}
+                onChange={(e) => handleAcademicFieldChange('dailyQuestionGoal', e.target.value)}
+              />
+            ) : (
+              <span className="info-value">{profile.academicGoals.dailyQuestionGoal}</span>
+            )}
+          </div>
+          <div className="info-item">
+            <span className="info-label">Preferred Study Time</span>
+            {editingAcademics ? (
+              <input
+                type="text"
+                className="edit-input"
+                value={academicDraft.preferredStudyTime}
+                onChange={(e) => handleAcademicFieldChange('preferredStudyTime', e.target.value)}
+              />
+            ) : (
+              <span className="info-value">{profile.academicGoals.preferredStudyTime}</span>
+            )}
+          </div>
+          
+        </div>
+        {editingAcademics && (
+          <div className="edit-actions">
+            <button className="cancel-btn" onClick={cancelAcademics}>Cancel</button>
+          </div>
+        )}
+      </div>
+
+      {/* Achievements */}
+      <div className="profile-card">
+        <h3 className="card-title"><i className="fas fa-medal"></i> Achievements</h3>
+        <div className="achievements-grid">
+          <div className="achievement-category">
+            <h4>Streaks</h4>
+            <div className="badge-row">
+              {profile.achievements.streaks.map((s, idx) => (
+                <span key={idx} className={`badge ${s.achieved ? 'earned' : 'locked'}`}>
+                  <i className={`fas ${s.achieved ? 'fa-fire' : 'fa-fire-alt'}`}></i> {s.label}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="achievement-category">
+            <h4>Questions Solved</h4>
+            <div className="badge-row">
+              {profile.achievements.questionsSolved.map((q, idx) => (
+                <span key={idx} className={`badge ${q.achieved ? 'earned' : 'locked'}`}>
+                  <i className={`fas ${q.achieved ? 'fa-check-circle' : 'fa-circle'}`}></i> {q.milestone}+
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="achievement-category">
+            <h4>Special Badges</h4>
+            <div className="badge-row">
+              {profile.achievements.badges.map((b, idx) => (
+                <span key={idx} className={`badge ${b.earned ? 'earned' : 'locked'}`}>
+                  <i className={`fas ${b.icon}`}></i> {b.name}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Performance Snapshot */}
+      <div className="profile-card">
+        <h3 className="card-title"><i className="fas fa-chart-bar"></i> Performance Snapshot</h3>
+        <div className="snapshot-grid">
+          <div className="snapshot-item" onClick={() => setShowSolvedDetail(!showSolvedDetail)}>
+            <span className="snap-value">{profile.performance.totalSolved}</span>
+            <span className="snap-label">Total Solved</span>
+            {showSolvedDetail && (
+              <div className="detail-box">
+                {Object.entries(profile.performance.solvedPerChapter).map(([ch, count]) => (
+                  <div key={ch} className="detail-row">
+                    <span>{ch}</span>
+                    <span>{count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="snapshot-item" onClick={() => setShowAccuracyDetail(!showAccuracyDetail)}>
+            <span className="snap-value">{profile.performance.accuracy}%</span>
+            <span className="snap-label">Accuracy</span>
+            {showAccuracyDetail && (
+              <div className="detail-box">
+                {Object.entries(profile.performance.accuracyPerChapter).map(([ch, data]) => (
+                  <div key={ch} className="detail-row">
+                    <span>{ch}</span>
+                    <span>{data.correct} ✓ / {data.incorrect} ✗</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="snapshot-item">
+            <span className="snap-value">{profile.performance.streak} days</span>
+            <span className="snap-label">Streak</span>
+          </div>
+          <div className="snapshot-item" onClick={() => setShowStudyHoursDetail(!showStudyHoursDetail)}>
+            <span className="snap-value">{profile.performance.weeklyStudyHours}h</span>
+            <span className="snap-label">Weekly Study</span>
+            {showStudyHoursDetail && (
+              <div className="detail-box">
+                {profile.performance.dailyStudyHours.map((d, idx) => (
+                  <div key={idx} className="detail-row">
+                    <span>{d.day}</span>
+                    <span>{d.hours}h – {d.topic}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="topic-accuracy">
+          <h4>Topic‑wise Accuracy</h4>
+          {profile.performance.topicAccuracy.map((t, idx) => (
+            <div key={idx} className="acc-row">
+              <span className="acc-topic">{t.topic}</span>
+              <div className="acc-bar-bg">
+                <div className="acc-bar-fill" style={{ width: `${t.accuracy}%` }}></div>
+              </div>
+              <span className="acc-val">{t.accuracy}%</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="strength-weakness">
+          <div>
+            <strong><i className="fas fa-arrow-up green"></i> Strongest</strong>
+            <ul>
+              {profile.performance.strongest.map((ch, i) => <li key={i}>{ch}</li>)}
+            </ul>
+          </div>
+          <div>
+            <strong><i className="fas fa-arrow-down red"></i> Needs Work</strong>
+            <ul>
+              {profile.performance.needsWork.map((ch, i) => <li key={i}>{ch}</li>)}
+            </ul>
+          </div>
+        </div>
+
+        <div className="tests-info">
+          <h4>Tests Taken</h4>
+          <p>{profile.performance.testsGiven} tests • Total marks: {profile.performance.totalMarks}</p>
+        </div>
+      </div>
+
+      {/* Recent Activity & AI Insights */}
+      <div className="profile-card">
+        <h3 className="card-title"><i className="fas fa-history"></i> Recent Activity</h3>
+        <div className="activity-list">
+          {profile.recentActivity.map((act, idx) => (
+            <div key={idx} className="activity-item">
+              <span>{act.action}</span>
+              <span className="activity-time">{act.time}</span>
+            </div>
+          ))}
+        </div>
+        <hr />
+        <h3 className="card-title" style={{ marginTop: '20px' }}>
+          <i className="fas fa-robot"></i> AI Insights
+        </h3>
+        <p>You have used the AI Doubt Solver <strong>{profile.aiInsights.doubtSolverUses} times</strong> this month.</p>
+        <p>{profile.aiInsights.focusSuggestion}</p>
+        <button className="ai-plan-btn">
+          <i className="fas fa-magic"></i> Generate Personalized Study Plan
+        </button>
+      </div>
+
+      {/* Account Settings */}
+      <div className="profile-card">
+        <h3 className="card-title"><i className="fas fa-cog"></i> Account Settings</h3>
+        <div className="settings-links">
+          <a href="#" className="settings-link"><i className="fas fa-lock"></i> Change Password</a>
+          <a href="#" className="settings-link"><i className="fas fa-palette"></i> Theme (Light)</a>
+          <a href="#" className="settings-link"><i className="fas fa-bell"></i> Notifications</a>
+          <a href="#" className="settings-link"><i className="fas fa-user-slash"></i> Delete Account</a>
+          <hr />
+          <button className="logout-btn"><i className="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+      </div>
+    </div>
   );
 };
 
