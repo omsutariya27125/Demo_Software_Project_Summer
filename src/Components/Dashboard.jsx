@@ -41,14 +41,14 @@ const weeklyChartData = {
       tension: 0.3,
       fill: true,
     },
-    {
-      label: 'Streak (days)',
-      data: [7, 14, 21, 23, 23, 23, 23],
-      borderColor: '#f59e0b',
-      borderDash: [5, 5],
-      tension: 0.3,
-      yAxisID: 'y1',
-    },
+    // {
+    //   label: 'Streak (days)',
+    //   data: [7, 14, 21, 23, 23, 23, 23],
+    //   borderColor: '#f59e0b',
+    //   borderDash: [5, 5],
+    //   tension: 0.3,
+    //   yAxisID: 'y1',
+    // },
   ],
 };
 
@@ -58,12 +58,12 @@ const weeklyChartOptions = {
   plugins: { legend: { display: true } },
   scales: {
     y: { beginAtZero: true, title: { display: true, text: 'Hours' } },
-    y1: {
-      beginAtZero: true,
-      position: 'right',
-      grid: { drawOnChartArea: false },
-      title: { display: true, text: 'Days' },
-    },
+    // y1: {
+    //   beginAtZero: true,
+    //   position: 'right',
+    //   grid: { drawOnChartArea: false },
+    //   title: { display: true, text: 'Days' },
+    // },
   },
 };
 
@@ -156,7 +156,7 @@ export default function Dashboard() {
 
         {/* Weekly Practice */}
         <div className="card">
-          <h3 className="card-title">Weekly Practice & Streak</h3>
+          <h3 className="card-title">Weekly Practice</h3>
           <div className="chart-container">
             <Line data={weeklyChartData} options={weeklyChartOptions} />
           </div>
